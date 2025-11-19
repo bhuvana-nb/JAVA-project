@@ -1,0 +1,272 @@
+//LIBRARY MANAGEMENT SYSTEM
+
+//Book.java
+
+public class Book {
+
+    private String bookId;
+    private String title;
+    private String author;
+    private int year;
+    private boolean isIssued;
+
+    public Book(String bookId, String title, String author, int year) {
+        this.bookId = bookId;
+        this.title = title;
+        this.author = author;
+        this.year = year;
+        this.isIssued = false;
+    }
+
+    public String getBookId() {
+        return bookId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public boolean isIssued() {
+        return isIssued;
+    }
+
+    public void setIssued(boolean issued) {
+        isIssued = issued;
+    }
+
+    @Override
+    public String toString() {
+        return "Book ID: " + bookId +
+                ", Title: " + title +
+                ", Author: " + author +
+                ", Year: " + year +
+                ", Issued: " + (isIssued ? "Yes" : "No");
+    }
+}
+
+//Library.java
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class Library {
+
+    private HashMap<String, Book> books = new HashMap<>();
+
+    public boolean addBook(Book book) {
+        if (books.containsKey(book.getBookId())) {
+            return false;
+        }
+        books.put(book.getBookId(), book);
+        return true;
+    }
+
+    public boolean removeBook(String id) {
+        Book book = books.get(id);
+
+        if (book == null || book.isIssued()) {
+            return false;
+        }
+        books.remove(id);
+        return true;
+    }
+
+    public boolean issueBook(String id) {
+        Book book = books.get(id);
+
+        if (book == null || book.isIssued()) {
+            return false;
+        }
+        book.setIssued(true);
+        return true;
+    }
+
+    public boolean returnBook(String id) {
+        Book book = books.get(id);
+
+        if (book == null || !book.isIssued()) {
+            return false;
+        }
+        book.setIssued(false);
+        return true;
+    }
+
+    public Book searchById(String id) {
+        return books.get(id);
+    }
+
+    public ArrayList<Book> searchByTitle(String title) {
+        ArrayList<Book> result = new ArrayList<>();
+        for (Book b : books.values()) {
+            if (b.getTitle().equalsIgnoreCase(title)) {
+                result.add(b);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<Book> searchByAuthor(String author) {
+        ArrayList<Book> result = new ArrayList<>();
+        for (Book b : books.values()) {
+            if (b.getAuthor().equalsIgnoreCase(author)) {
+                result.add(b);
+            }
+        }
+        return result;
+    }
+
+    public void displayAll() {
+        if (books.isEmpty()) {
+            System.out.println("No books available.");
+            return;
+        }
+        for (Book b : books.values()) {
+            System.out.println(b);
+        }
+    }
+}
+
+//LiraryApp.java
+
+import java.util.Scanner;
+import java.util.ArrayList;
+
+public class LibraryApp {
+
+    public static void main(String[] args) {
+
+        Library library = new Library();
+        Scanner sc = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\n===== LIBRARY MENU =====");
+            System.out.println("1. Add Book");
+            System.out.println("2. Remove Book");
+            System.out.println("3. Issue Book");
+            System.out.println("4. Return Book");
+            System.out.println("5. Search Book");
+            System.out.println("6. Display All Books");
+            System.out.println("0. Exit");
+            System.out.print("Enter choice: ");
+
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+
+                case 1:
+                    System.out.print("Enter Book ID: ");
+                    String id = sc.nextLine();
+
+                    System.out.print("Enter Title: ");
+                    String title = sc.nextLine();
+
+                    System.out.print("Enter Author: ");
+                    String author = sc.nextLine();
+
+                    System.out.print("Enter Year: ");
+                    int year = sc.nextInt();
+
+                    Book book = new Book(id, title, author, year);
+
+                    if (library.addBook(book))
+                        System.out.println("Book added successfully!");
+                    else
+                        System.out.println("Book ID already exists!");
+
+                    break;
+
+                case 2:
+                    System.out.print("Enter Book ID to Remove: ");
+                    String rid = sc.nextLine();
+
+                    if (library.removeBook(rid))
+                        System.out.println("Book removed successfully!");
+                    else
+                        System.out.println("Cannot remove book (not found or issued).");
+                    break;
+
+                case 3:
+                    System.out.print("Enter Book ID to Issue: ");
+                    String iid = sc.nextLine();
+
+                    if (library.issueBook(iid))
+                        System.out.println("Book issued successfully!");
+                    else
+                        System.out.println("Cannot issue book (not found or already issued).");
+                    break;
+
+                case 4:
+                    System.out.print("Enter Book ID to Return: ");
+                    String rid2 = sc.nextLine();
+
+                    if (library.returnBook(rid2))
+                        System.out.println("Book returned successfully!");
+                    else
+                        System.out.println("Cannot return book (not found or not issued).");
+                    break;
+
+                case 5:
+                    System.out.println("1. Search by ID");
+                    System.out.println("2. Search by Title");
+                    System.out.println("3. Search by Author");
+                    System.out.print("Enter choice: ");
+                    int s = sc.nextInt();
+                    sc.nextLine();
+
+                    if (s == 1) {
+                        System.out.print("Enter Book ID: ");
+                        String sid = sc.nextLine();
+
+                        Book b = library.searchById(sid);
+                        System.out.println(b != null ? b : "Book not found.");
+                    }
+                    else if (s == 2) {
+                        System.out.print("Enter Title: ");
+                        String stitle = sc.nextLine();
+
+                        ArrayList<Book> list = library.searchByTitle(stitle);
+                        if (list.isEmpty())
+                            System.out.println("No books found.");
+                        else
+                            list.forEach(System.out::println);
+                    }
+                    else if (s == 3) {
+                        System.out.print("Enter Author: ");
+                        String sauthor = sc.nextLine();
+
+                        ArrayList<Book> list = library.searchByAuthor(sauthor);
+                        if (list.isEmpty())
+                            System.out.println("No books found.");
+                        else
+                            list.forEach(System.out::println);
+                    }
+                    break;
+
+                case 6:
+                    library.displayAll();
+                    break;
+
+                case 0:
+                    System.out.println("Exiting...");
+                    break;
+
+                default:
+                    System.out.println("Invalid option!");
+                    break;
+            }
+
+        } while (choice != 0);
+
+        sc.close();
+    }
+}
